@@ -1,0 +1,1279 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>la* — Notas</title>
+    <style>
+      :root {
+        --bg: #f6f5fa;
+        --panel: rgba(255, 255, 255, 0.82);
+        --panel-solid: #fff;
+        --panel2: #eeeaf5;
+        --ink: #211a36;
+        --muted: #777084;
+        --line: rgba(45, 35, 70, 0.12);
+        --accent: #cbfa72;
+        --accent-strong: #a9dd42;
+        --accent-ink: #17132e;
+        --purple: #8d78b8;
+        --red: #d95763;
+        --shadow: 0 18px 50px rgba(35, 24, 60, 0.1);
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+        --drawer: cubic-bezier(0.32, 0.72, 0, 1);
+        color-scheme: light;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+          "Segoe UI", Inter, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        background:
+          radial-gradient(
+            circle at 75% 8%,
+            rgba(203, 250, 114, 0.1),
+            transparent 28%
+          ),
+          radial-gradient(
+            circle at 12% 100%,
+            rgba(141, 120, 184, 0.1),
+            transparent 30%
+          ),
+          var(--bg);
+        color: var(--ink);
+        font-size: 14px;
+        line-height: 1.5;
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
+        transition:
+          background 0.3s ease,
+          color 0.2s ease;
+      }
+      body.light {
+        --bg: #f6f5fa;
+        --panel: rgba(255, 255, 255, 0.84);
+        --panel-solid: #fff;
+        --panel2: #eeeaf5;
+        --ink: #211a36;
+        --muted: #777084;
+        --line: rgba(45, 35, 70, 0.12);
+        --red: #b43c47;
+        color-scheme: light;
+      }
+      button,
+      input,
+      textarea {
+        font: inherit;
+        color: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      button:focus-visible,
+      input:focus-visible,
+      textarea:focus-visible {
+        outline: 2px solid var(--accent-strong);
+        outline-offset: 2px;
+      }
+      .app {
+        display: grid;
+        grid-template-columns: minmax(270px, 320px) 1fr;
+        height: 100dvh;
+        padding: 0;
+      }
+      .pane {
+        overflow: auto;
+        position: relative;
+        min-width: 0;
+        overscroll-behavior: contain;
+      }
+      .list {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.82),
+          rgba(246, 244, 250, 0.9)
+        );
+        border-right: 1px solid var(--line);
+        box-shadow: 8px 0 30px rgba(40, 25, 70, 0.035);
+      }
+      .editor {
+        background:
+          radial-gradient(
+            circle at 70% 15%,
+            rgba(203, 250, 114, 0.08),
+            transparent 25%
+          ),
+          var(--bg);
+      }
+      .glass {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: color-mix(in srgb, var(--panel) 88%, transparent);
+        backdrop-filter: blur(26px) saturate(170%);
+        -webkit-backdrop-filter: blur(26px) saturate(170%);
+        border-bottom: 1px solid transparent;
+        transition:
+          border-color 0.25s ease,
+          box-shadow 0.25s ease,
+          background 0.25s ease;
+      }
+      .glass.edge {
+        border-color: var(--line);
+        box-shadow: 0 8px 25px rgba(30, 20, 50, 0.04);
+      }
+      .bar {
+        padding: 14px 14px 12px;
+      }
+      .windowbar {
+        height: 32px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 2px;
+        margin-bottom: 4px;
+      }
+      .traffic {
+        display: flex;
+        gap: 7px;
+        align-items: center;
+      }
+      .traffic i {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: block;
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+      }
+      .traffic .close {
+        background: #ff5f57;
+      }
+      .traffic .min {
+        background: #febc2e;
+      }
+      .traffic .max {
+        background: #28c840;
+      }
+      .windowtitle {
+        flex: 1;
+        text-align: center;
+        margin-right: 56px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 5px 4px 13px;
+      }
+      .brandicon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        font-size: 19px;
+        font-weight: 800;
+        color: var(--accent-ink);
+        background: linear-gradient(145deg, var(--accent), #e7ffad);
+        box-shadow: 0 5px 15px rgba(142, 170, 72, 0.2);
+      }
+      .brandtext {
+        min-width: 0;
+        flex: 1;
+      }
+      .eyebrow {
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+      h1 {
+        font-size: 22px;
+        letter-spacing: -0.03em;
+        line-height: 1.05;
+        margin: 1px 0 0;
+        font-weight: 700;
+      }
+      #new {
+        border: 0;
+        background: var(--accent);
+        color: var(--accent-ink);
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        font-size: 20px;
+        line-height: 1;
+        display: grid;
+        place-items: center;
+        box-shadow: 0 5px 16px rgba(130, 155, 65, 0.15);
+        transition:
+          transform 0.18s var(--ease),
+          box-shadow 0.18s ease,
+          filter 0.18s ease;
+      }
+      #new:hover {
+        transform: translateY(-1px) scale(1.03);
+        box-shadow: 0 8px 22px rgba(130, 155, 65, 0.22);
+        filter: saturate(1.05);
+      }
+      #new:active {
+        transform: scale(0.94);
+      }
+      .searchwrap {
+        position: relative;
+        margin: 0 3px 10px;
+      }
+      .searchwrap svg {
+        position: absolute;
+        left: 11px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0.48;
+      }
+      .field {
+        width: 100%;
+        padding: 9px 12px 9px 34px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(238, 234, 245, 0.72);
+        min-width: 0;
+        color: var(--ink);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+        transition:
+          background 0.2s ease,
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      .field:focus {
+        outline: 0;
+        background: #fff;
+        border-color: rgba(141, 120, 184, 0.35);
+        box-shadow: 0 0 0 3px rgba(141, 120, 184, 0.1);
+      }
+      .seg {
+        --seg-x: 0%;
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0;
+        margin: 0 3px;
+        background: rgba(238, 234, 245, 0.8);
+        border-radius: 999px;
+        padding: 3px;
+        isolation: isolate;
+        overflow: hidden;
+      }
+      .seg::before {
+        content: "";
+        position: absolute;
+        z-index: 0;
+        top: 3px;
+        bottom: 3px;
+        left: 3px;
+        width: calc((100% - 6px) / 3);
+        transform: translate3d(var(--seg-x), 0, 0);
+        border-radius: 999px;
+        background: var(--panel-solid);
+        box-shadow:
+          0 2px 8px rgba(40, 25, 70, 0.1),
+          0 1px 2px rgba(40, 25, 70, 0.06);
+        transition: transform 0.52s cubic-bezier(0.22, 1.18, 0.36, 1);
+        will-change: transform;
+        pointer-events: none;
+      }
+      .seg[data-active="all"] {
+        --seg-x: 0%;
+      }
+      .seg[data-active="pin"] {
+        --seg-x: 100%;
+      }
+      .seg[data-active="del"] {
+        --seg-x: 200%;
+      }
+      .seg button {
+        position: relative;
+        z-index: 1;
+        border: 0;
+        background: transparent;
+        padding: 7px 3px;
+        font-size: 12px;
+        color: var(--muted);
+        border-radius: 999px;
+        transition:
+          color 0.22s ease,
+          transform 0.18s ease;
+      }
+      .seg button:hover {
+        color: var(--ink);
+      }
+      .seg .on {
+        color: var(--ink);
+        font-weight: 700;
+      }
+      .grp {
+        margin: 19px 17px 7px;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .note {
+        margin: 14px 18px;
+        font-size: 12px;
+      }
+      .item {
+        position: relative;
+        overflow: visible;
+        margin: 2px 9px;
+        border-radius: 11px;
+      }
+      .row {
+        position: relative;
+        background: transparent;
+        padding: 10px 12px;
+        border-radius: 11px;
+        touch-action: pan-y;
+        user-select: none;
+        -webkit-user-select: none;
+        cursor: pointer;
+        transition:
+          background 0.2s var(--ease),
+          transform 0.18s var(--ease),
+          box-shadow 0.2s ease;
+      }
+      .row::after {
+        content: "";
+        position: absolute;
+        left: 12px;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: var(--line);
+        opacity: 0.8;
+      }
+      .item:last-child .row::after,
+      .row.sel::after {
+        display: none;
+      }
+      .row:hover {
+        background: transparent;
+        transform: none;
+        box-shadow:
+          0 0 0 1px var(--line),
+          0 0 0 4px rgba(141, 120, 184, 0.07);
+      }
+      .row b {
+        display: block;
+        font-weight: 650;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 13px;
+      }
+      .meta {
+        display: block;
+        font-size: 11px;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 2px;
+      }
+      @media (min-width: 701px) {
+        .row.sel {
+          background: linear-gradient(
+            100deg,
+            rgba(203, 250, 114, 0.92),
+            rgba(203, 250, 114, 0.7)
+          );
+          color: var(--accent-ink);
+          box-shadow: 0 5px 18px rgba(130, 155, 65, 0.11);
+          transform: none;
+        }
+        .row.sel .meta {
+          color: rgba(23, 19, 46, 0.68);
+        }
+        .row.sel b:before {
+          content: "";
+          display: inline-block;
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: var(--accent-strong);
+          vertical-align: middle;
+          margin-right: 6px;
+        }
+      }
+      .empty {
+        padding: 50px 20px;
+        text-align: center;
+        color: var(--muted);
+        animation: rise 0.35s var(--ease) both;
+      }
+      .empty strong {
+        display: block;
+        color: var(--ink);
+        font-size: 15px;
+        margin-bottom: 5px;
+      }
+      .foot {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        align-items: center;
+        margin-top: 18px;
+        padding: 14px 17px 24px;
+        border-top: 1px solid var(--line);
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .foot p {
+        flex-basis: 100%;
+        margin: 0 0 3px;
+        line-height: 1.4;
+      }
+      .foot button {
+        border: 1px solid var(--line);
+        background: var(--panel-solid);
+        border-radius: 8px;
+        padding: 6px 9px;
+        font-size: 11px;
+        transition:
+          transform 0.16s ease,
+          background 0.18s ease;
+      }
+      .foot button:hover {
+        background: var(--panel2);
+        transform: translateY(-1px);
+      }
+      .ebar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        height: 54px;
+      }
+      .doc {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 28px clamp(28px, 6vw, 82px) 100px;
+      }
+      .stamp {
+        text-align: center;
+        font-size: 11px;
+        color: var(--muted);
+        margin: 1px 0 25px;
+      }
+      #t,
+      #b {
+        width: 100%;
+        border: 0;
+        background: none;
+        outline: 0;
+        padding: 0;
+      }
+      #t {
+        font-size: 34px;
+        font-weight: 750;
+        letter-spacing: -0.035em;
+        line-height: 1.12;
+        margin-bottom: 13px;
+        color: var(--ink);
+        caret-color: var(--purple);
+      }
+      #b {
+        resize: none;
+        font-size: 16px;
+        line-height: 1.7;
+        min-height: 55vh;
+        display: block;
+        color: var(--ink);
+        caret-color: var(--purple);
+      }
+      ::placeholder {
+        color: var(--muted);
+        opacity: 0.62;
+      }
+      .actions {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
+      .actions button,
+      .ebar > #back {
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        padding: 7px 9px;
+        border-radius: 8px;
+        transition:
+          background 0.18s ease,
+          color 0.18s ease,
+          transform 0.18s var(--ease);
+      }
+      .actions button:hover,
+      .ebar > #back:hover {
+        background: var(--panel2);
+        color: var(--ink);
+        transform: translateY(-1px);
+      }
+      .actions .danger {
+        color: var(--red);
+      }
+      .blank {
+        display: none;
+        min-height: 100dvh;
+        place-items: center;
+        align-content: center;
+        gap: 6px;
+        color: var(--muted);
+        text-align: center;
+        padding: 30px;
+      }
+      .blank strong {
+        color: var(--ink);
+        font-size: 18px;
+      }
+      .mark {
+        font-size: 58px;
+        line-height: 1;
+        color: var(--accent-strong);
+        filter: drop-shadow(0 8px 16px rgba(130, 155, 65, 0.16));
+        animation: rise 0.55s var(--ease) both;
+      }
+      .none .blank {
+        display: grid;
+      }
+      .none .ebar,
+      .none .doc {
+        display: none;
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(9px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 24px;
+        transform: translate(-50%, 140%) scale(0.96);
+        opacity: 0;
+        visibility: hidden;
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        max-width: calc(100% - 32px);
+        background: var(--accent);
+        color: var(--accent-ink);
+        padding: 10px 12px 10px 15px;
+        border-radius: 12px;
+        box-shadow: 0 14px 45px rgba(30, 20, 50, 0.2);
+        z-index: 20;
+        transition:
+          transform 0.38s var(--ease),
+          opacity 0.25s ease,
+          visibility 0s 0.38s;
+      }
+      .toast.show {
+        transform: translate(-50%, 0) scale(1);
+        opacity: 1;
+        visibility: visible;
+        transition-delay: 0s;
+      }
+      .toast button {
+        background: var(--accent-ink);
+        color: #fff;
+        border: 0;
+        white-space: nowrap;
+        border-radius: 8px;
+      }
+      @media (max-width: 700px) {
+        .app {
+          display: block;
+        }
+        .pane {
+          position: absolute;
+          inset: 0;
+        }
+        .editor {
+          transform: translateX(100%);
+          visibility: hidden;
+          z-index: 15;
+          transition:
+            transform 0.38s var(--drawer),
+            visibility 0s 0.38s;
+        }
+        body.editing .editor {
+          transform: none;
+          visibility: visible;
+          transition-delay: 0s;
+        }
+        #back {
+          display: inline-block;
+        }
+        h1 {
+          font-size: 21px;
+        }
+        .doc {
+          padding: 25px 22px 80px;
+        }
+        .ebar {
+          height: 56px;
+        }
+        #t {
+          font-size: 29px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *:before,
+        *:after {
+          scroll-behavior: auto !important;
+          animation: none !important;
+          transition-duration: 0.01ms !important;
+        }
+        .toast {
+          transform: translate(-50%, 0);
+          transition:
+            opacity 0.2s,
+            visibility 0s 0.2s;
+        }
+      }
+      @media (prefers-reduced-transparency: reduce) {
+        .glass {
+          background: var(--panel-solid);
+          backdrop-filter: none;
+          -webkit-backdrop-filter: none;
+        }
+      }
+      body:not(.light) {
+        --bg: #141126;
+        --panel: rgba(29, 24, 51, 0.88);
+        --panel-solid: #1d1833;
+        --panel2: #26203f;
+        --ink: #f5f3fa;
+        --muted: #b5accb;
+        --line: rgba(245, 243, 250, 0.12);
+        --red: #ffaaaa;
+        background:
+          radial-gradient(
+            circle at 75% 8%,
+            rgba(203, 250, 114, 0.07),
+            transparent 28%
+          ),
+          radial-gradient(
+            circle at 12% 100%,
+            rgba(141, 120, 184, 0.11),
+            transparent 30%
+          ),
+          var(--bg);
+      }
+      body:not(.light) .list {
+        background: linear-gradient(
+          180deg,
+          rgba(29, 24, 51, 0.9),
+          rgba(20, 17, 38, 0.95)
+        );
+      }
+      body:not(.light) .field {
+        background: rgba(38, 32, 63, 0.82);
+      }
+      body:not(.light) .field:focus {
+        background: #26203f;
+      }
+      body:not(.light) .seg {
+        background: rgba(38, 32, 63, 0.82);
+      }
+      body:not(.light) .seg::before {
+        background: #342c50;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+      body:not(.light) .seg .on {
+        color: var(--ink);
+      }
+      body:not(.light) .row:hover {
+        background: transparent;
+        box-shadow:
+          0 0 0 1px var(--line),
+          0 0 0 4px rgba(203, 250, 114, 0.06);
+      }
+      body:not(.light) .row.sel:hover {
+        color: var(--ink);
+      }
+      body:not(.light) .row.sel:hover .meta {
+        color: var(--muted);
+      }
+      body:not(.light) .foot button {
+        background: #26203f;
+      }
+      body:not(.light) .foot button:hover {
+        background: #302848;
+      }
+      body:not(.light) .glass {
+        background: color-mix(in srgb, #1d1833 88%, transparent);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <section class="pane list" id="lp">
+        <div class="glass bar">
+          <div class="top">
+            <div class="brandicon">✳</div>
+            <div class="brandtext">
+              <div class="eyebrow">La · local</div>
+              <h1>Notas</h1>
+            </div>
+            <button id="new" aria-label="Nueva nota">＋</button>
+          </div>
+          <div class="searchwrap">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="7"></circle>
+              <path d="m20 20-4-4"></path>
+            </svg>
+            <input
+              class="field"
+              id="q"
+              type="search"
+              placeholder="Buscar"
+              aria-label="Buscar notas"
+            />
+          </div>
+          <div class="seg">
+            <button data-f="all">Todas</button>
+            <button data-f="pin">Fijadas</button>
+            <button data-f="del">Eliminadas</button>
+          </div>
+        </div>
+        <div id="items"></div>
+        <div class="foot">
+          <p>Todo se guarda únicamente en este navegador.</p>
+          <button class="small" id="exp">Exportar</button>
+          <button class="small" id="imp">Importar</button>
+          <button class="small" id="theme">Tema</button>
+        </div>
+      </section>
+
+      <section class="pane editor none" id="ed">
+        <div class="glass ebar">
+          <button class="small" id="back">‹ Notas</button>
+          <div class="actions">
+            <button class="small" id="res" hidden>Restaurar</button>
+            <button class="small" id="pin">Fijar</button>
+            <button class="small" id="copy">Copiar</button>
+            <button class="small danger" id="rm">Eliminar</button>
+          </div>
+        </div>
+        <div class="doc">
+          <div class="stamp" id="stamp"></div>
+          <input
+            id="t"
+            placeholder="Título"
+            maxlength="200"
+            aria-label="Título"
+          />
+          <textarea
+            id="b"
+            placeholder="Empezá a escribir…"
+            aria-label="Contenido"
+          ></textarea>
+        </div>
+        <div class="blank">
+          <div class="mark">✳</div>
+          <strong>Sin nota abierta</strong
+          ><span>Elegí una o creá una nueva.</span>
+        </div>
+      </section>
+    </div>
+    <div id="toast" class="toast" role="status"></div>
+    <input id="file" type="file" accept=".json,application/json" hidden />
+
+    <script>
+      "use strict";
+      const $ = (s) => document.querySelector(s),
+        KEY = "la-notes-v1",
+        DAY = 864e5,
+        RM = matchMedia("(prefers-reduced-motion:reduce)"),
+        mob = () => matchMedia("(max-width:700px)").matches;
+      const esc = (v) =>
+        String(v ?? "").replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      const D = new Intl.DateTimeFormat("es-UY", {
+          dateStyle: "long",
+          timeStyle: "short",
+        }),
+        S = new Intl.DateTimeFormat("es-UY"),
+        H = new Intl.DateTimeFormat("es-UY", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      const sod = () => {
+          const d = new Date();
+          d.setHours(0, 0, 0, 0);
+          return +d;
+        },
+        when = (u) => (u >= sod() ? H.format(u) : S.format(u));
+      const uid = () =>
+        crypto.randomUUID
+          ? crypto.randomUUID()
+          : Date.now().toString(36) + Math.random().toString(36).slice(2);
+      let bad = false,
+        db = load(),
+        f = "all",
+        q = "",
+        cur = null,
+        saveT,
+        raf,
+        sw = null,
+        swiped = false,
+        openIt = null;
+      function clean(r) {
+        const now = Date.now();
+        return {
+          theme: r.theme === "light" ? "light" : "dark",
+          notes: (Array.isArray(r.notes) ? r.notes : [])
+            .filter((n) => n && typeof n.id === "string")
+            .map((n) => ({
+              id: n.id.slice(0, 60),
+              title: String(n.title || "").slice(0, 200),
+              body: String(n.body || "").slice(0, 2e5),
+              u: +n.u || now,
+              pin: !!n.pin,
+              del: +n.del || 0,
+            }))
+            .filter((n) => !n.del || now - n.del < 30 * DAY),
+        };
+      }
+      function load() {
+        let raw = null;
+        try {
+          raw = localStorage.getItem(KEY);
+        } catch (e) {}
+        if (raw == null) return { theme: "dark", notes: [] };
+        try {
+          return clean(JSON.parse(raw));
+        } catch (e) {
+          bad = true;
+          return { theme: "dark", notes: [] };
+        }
+      }
+      function commit() {
+        if (bad) {
+          toast(
+            "No se pudieron leer los datos guardados. Importá un respaldo; el original no se sobrescribió.",
+          );
+          return;
+        }
+        try {
+          localStorage.setItem(KEY, JSON.stringify(db));
+        } catch (e) {
+          toast("No se pudo guardar. Exportá un respaldo antes de cerrar.");
+        }
+      }
+      const save = () => {
+          clearTimeout(saveT);
+          saveT = setTimeout(commit, 250);
+        },
+        get = (id) => db.notes.find((n) => n.id === id),
+        apply = () =>
+          document.body.classList.toggle("light", db.theme === "light");
+      function toast(msg, act, fn) {
+        const t = $("#toast");
+        t.innerHTML =
+          "<span>" +
+          esc(msg) +
+          "</span>" +
+          (act ? '<button class="small">' + act + "</button>" : "");
+        if (act)
+          t.querySelector("button").onclick = () => {
+            fn();
+            hideToast();
+          };
+        t.classList.add("show");
+        clearTimeout(toast.t);
+        toast.t = setTimeout(hideToast, 5000);
+      }
+      const hideToast = () => $("#toast").classList.remove("show");
+      const vis = () =>
+        db.notes
+          .filter(
+            (n) =>
+              (f === "del" ? n.del : !n.del && (f !== "pin" || n.pin)) &&
+              (!q || (n.title + " " + n.body).toLowerCase().includes(q)),
+          )
+          .sort((a, b) => b.pin - a.pin || b.u - a.u);
+      function grp(n) {
+        if (f === "del") return "";
+        if (n.pin) return "Fijadas";
+        const s = sod();
+        return n.u >= s
+          ? "Hoy"
+          : n.u >= s - 6 * DAY
+            ? "Últimos 7 días"
+            : "Anteriores";
+      }
+      function renderList() {
+        const L = vis();
+        let h = "",
+          g = null;
+        if (f === "del" && L.length)
+          h =
+            '<p class="muted note">Se borran para siempre a los 30 días. <button class="small danger" id="purge">Vaciar</button></p>';
+        for (const n of L) {
+          const gr = grp(n);
+          if (gr !== g) {
+            g = gr;
+            if (gr) h += '<h3 class="grp">' + gr + "</h3>";
+          }
+          h += `<div class="item" data-id="${esc(n.id)}"><div class="row${n.id === cur ? " sel" : ""}" role="button" tabindex="0"><b>${esc(n.title.trim() || "Nueva nota")}</b><span class="meta">${when(n.u)} · ${esc(n.body.replace(/\s+/g, " ").trim().slice(0, 90) || "Sin texto adicional")}</span></div></div>`;
+        }
+        if (!h)
+          h = q
+            ? '<div class="empty"><strong>Sin resultados</strong>Probá con otra palabra.</div>'
+            : f === "del"
+              ? '<div class="empty"><strong>Nada eliminado</strong>Las notas que borres aparecen acá durante 30 días.</div>'
+              : f === "pin"
+                ? '<div class="empty"><strong>Sin notas fijadas</strong>Fijá una desde el editor.</div>'
+                : '<div class="empty"><strong>Sin notas todavía</strong>Creá la primera con “Nueva”.</div>';
+        $("#items").innerHTML = h;
+        const purge = $("#purge");
+        if (purge) {
+          purge.onclick = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (
+              confirm("¿Vaciar las notas eliminadas? No se puede deshacer.")
+            ) {
+              db.notes = db.notes.filter((n) => !n.del);
+              if (cur && !get(cur)) {
+                cur = null;
+                $("#ed").classList.add("none");
+                document.body.classList.remove("editing");
+              }
+              save();
+              renderList();
+            }
+          };
+        }
+      }
+      function setF(x) {
+        f = x;
+        const seg = document.querySelector(".seg");
+        if (seg) {
+          seg.dataset.active = x;
+          seg.style.setProperty(
+            "--seg-x",
+            x === "all" ? "0%" : x === "pin" ? "100%" : "200%",
+          );
+        }
+        document.querySelectorAll(".seg button").forEach((b) => {
+          const on = b.dataset.f === x;
+          b.classList.toggle("on", on);
+          b.setAttribute("aria-pressed", on);
+        });
+        renderList();
+      }
+      const stamp = (n) =>
+          ($("#stamp").textContent =
+            (n.del ? "Eliminada · " : "") + D.format(n.u)),
+        grow = () => {
+          const b = $("#b");
+          b.style.height = "auto";
+          b.style.height = b.scrollHeight + "px";
+        };
+      function prune() {
+        const n = get(cur);
+        if (n && !n.del && !n.title.trim() && !n.body.trim()) {
+          db.notes = db.notes.filter((x) => x !== n);
+          cur = null;
+          save();
+        }
+      }
+      function show(id, focus) {
+        if (id !== cur) prune();
+        cur = id;
+        const n = get(id);
+        if (!n) return;
+        const ro = !!n.del;
+        $("#ed").classList.remove("none");
+        $("#t").value = n.title;
+        $("#b").value = n.body;
+        $("#t").readOnly = $("#b").readOnly = ro;
+        stamp(n);
+        $("#pin").hidden = ro;
+        $("#res").hidden = !ro;
+        $("#pin").textContent = n.pin ? "Desfijar" : "Fijar";
+        $("#rm").textContent = ro ? "Borrar" : "Eliminar";
+        document.body.classList.add("editing");
+        grow();
+        renderList();
+        $("#ed").scrollTop = 0;
+        if (focus) $("#t").focus();
+      }
+      function leave() {
+        document.body.classList.remove("editing");
+        prune();
+        renderList();
+        setTimeout(
+          () => {
+            if (!cur) $("#ed").classList.add("none");
+          },
+          mob() ? 360 : 0,
+        );
+      }
+      function trash(id) {
+        const n = get(id);
+        if (!n) return;
+        n.del = Date.now();
+        save();
+        if (cur === id) {
+          cur = null;
+          leave();
+        } else renderList();
+        toast("Nota eliminada", "Deshacer", () => {
+          n.del = 0;
+          save();
+          renderList();
+        });
+      }
+      function touch() {
+        const n = get(cur);
+        if (!n || n.del) return;
+        n.title = $("#t").value;
+        n.body = $("#b").value;
+        n.u = Date.now();
+        stamp(n);
+        save();
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(renderList);
+      }
+      $("#t").oninput = touch;
+      $("#b").oninput = () => {
+        touch();
+        grow();
+      };
+      $("#t").onkeydown = (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          $("#b").focus();
+        }
+      };
+      $("#new").onclick = () => {
+        if (f === "del") f = "all";
+        q = "";
+        $("#q").value = "";
+        setF(f);
+        const n = {
+          id: uid(),
+          title: "",
+          body: "",
+          u: Date.now(),
+          pin: false,
+          del: 0,
+        };
+        db.notes.unshift(n);
+        save();
+        show(n.id, true);
+      };
+      $("#back").onclick = leave;
+      $("#q").oninput = (e) => {
+        q = e.target.value.trim().toLowerCase();
+        renderList();
+      };
+      document.querySelector(".seg").onclick = (e) => {
+        const b = e.target.closest("[data-f]");
+        if (b) setF(b.dataset.f);
+      };
+      $("#pin").onclick = () => {
+        const n = get(cur);
+        if (!n) return;
+        n.pin = !n.pin;
+        save();
+        $("#pin").textContent = n.pin ? "Desfijar" : "Fijar";
+        renderList();
+      };
+      $("#copy").onclick = async () => {
+        const n = get(cur);
+        if (!n) return;
+        try {
+          await navigator.clipboard.writeText(
+            (n.title ? n.title + "\n\n" : "") + n.body,
+          );
+          toast("Copiada al portapapeles");
+        } catch (e) {
+          toast("No se pudo copiar");
+        }
+      };
+      $("#rm").onclick = () => {
+        const n = get(cur);
+        if (!n) return;
+        if (!n.del) return trash(cur);
+        if (confirm("¿Borrar esta nota para siempre? No se puede deshacer.")) {
+          db.notes = db.notes.filter((x) => x !== n);
+          cur = null;
+          save();
+          leave();
+        }
+      };
+      $("#res").onclick = () => {
+        const n = get(cur);
+        if (!n) return;
+        n.del = 0;
+        save();
+        cur = null;
+        leave();
+        toast("Nota restaurada");
+      };
+      /* sidebar: selection only; deletion is available from the note editor */
+      const items = $("#items");
+      items.addEventListener("click", (e) => {
+        if (e.target.id === "purge") {
+          if (confirm("¿Vaciar las notas eliminadas? No se puede deshacer.")) {
+            db.notes = db.notes.filter((n) => !n.del);
+            cur = get(cur) ? cur : null;
+            save();
+            if (!cur) leave();
+            renderList();
+          }
+          return;
+        }
+        const it = e.target.closest(".item");
+        if (!it) return;
+        show(it.dataset.id);
+      });
+      items.addEventListener("keydown", (e) => {
+        if (
+          (e.key === "Enter" || e.key === " ") &&
+          e.target.classList.contains("row")
+        ) {
+          e.preventDefault();
+          show(e.target.parentNode.dataset.id);
+        }
+      });
+
+      document
+        .querySelectorAll(".pane")
+        .forEach((p) =>
+          p.addEventListener(
+            "scroll",
+            () =>
+              p
+                .querySelector(".glass")
+                .classList.toggle("edge", p.scrollTop > 4),
+            { passive: true },
+          ),
+        );
+      /* backup + theme */
+      $("#exp").onclick = () => {
+        const u = URL.createObjectURL(
+            new Blob([JSON.stringify(db, null, 2)], {
+              type: "application/json",
+            }),
+          ),
+          a = document.createElement("a");
+        a.href = u;
+        a.download =
+          "la-notas-respaldo-" +
+          new Date().toISOString().slice(0, 10) +
+          ".json";
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(u), 1000);
+        toast("Respaldo exportado");
+      };
+      $("#imp").onclick = () => $("#file").click();
+      $("#file").onchange = async (e) => {
+        const fl = e.target.files[0];
+        if (!fl) return;
+        try {
+          if (fl.size > 10485760) throw Error("supera 10 MB");
+          const d = clean(JSON.parse(await fl.text()));
+          if (
+            confirm(
+              `Se importarán ${d.notes.length} notas y se reemplazarán las actuales. ¿Continuar?`,
+            )
+          ) {
+            db = d;
+            bad = false;
+            cur = null;
+            commit();
+            apply();
+            $("#ed").classList.add("none");
+            document.body.classList.remove("editing");
+            renderList();
+            toast("Respaldo importado");
+          }
+        } catch (er) {
+          toast("No se importó: " + er.message);
+        }
+        e.target.value = "";
+      };
+      $("#theme").onclick = () => {
+        db.theme = db.theme === "light" ? "dark" : "light";
+        apply();
+        commit();
+      };
+      addEventListener("storage", (e) => {
+        if (e.key === KEY) {
+          db = load();
+          apply();
+          if (cur && !get(cur)) {
+            cur = null;
+            $("#ed").classList.add("none");
+          }
+          renderList();
+        }
+      });
+      addEventListener("pagehide", () => {
+        clearTimeout(saveT);
+        commit();
+      });
+      apply();
+      setF("all");
+      if (!mob() && vis()[0]) show(vis()[0].id);
+      if (bad)
+        toast(
+          "No se pudieron leer los datos guardados. Importá un respaldo; el original no se sobrescribió.",
+        );
+    </script>
+  </body>
+</html>
